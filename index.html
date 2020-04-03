@@ -3,43 +3,49 @@
 <head>
     <meta charset="utf-8"/>
     <title>Js App</title>
+    <!-- 注意: 不能这样写<script /> 必须 <script> </script> -->
+    <!-- 在 WebEngineView 容器中可以使用 qrc:///qtwebchannel/qwebchannel.js 这种方式引入qwebchannel.js -->
+    <!--<script type="text/javascript" src="qrc:///qtwebchannel/qwebchannel.js">-->
+    <!--    console.log("qrc:///qtwebchannel/qwebchannel.js")-->
+    <!--</script>-->
+    <!-- or -->
+    <script type="text/javascript" src="qwebchannel.js"></script>
+
+    <script type="text/javascript">
+
+        var _bdlbscWebDataComponent;
+            var app_access_token;
+            var user_access_token;
+            var user_id;
+            // 使用匿名函数 调用直接执行获取token
+            (function () {
+                new QWebChannel(qt.webChannelTransport, function (channel) {
+                    _bdlbscWebDataComponent = channel.objects.bdlbscWebDataComponent;
+                    app_access_token = _bdlbscWebDataComponent.app_access_token;
+                    user_access_token = _bdlbscWebDataComponent.user_access_token;
+                    user_id = _bdlbscWebDataComponent.user_id;
+                    // 获取 app_access_token
+                    console.log("app_access_token : " + app_access_token)
+                    // 获取 user_access_token
+                    console.log("user_access_token : " + _bdlbscWebDataComponent.user_access_token)
+                    // 获取用户id
+                    console.log("user_id : " + _bdlbscWebDataComponent.user_id)
+
+                    _bdlbscWebDataComponent.data_change.connect(function (message) {
+                        // 接收 c++ 发送过来的数据
+                        console.log("js receive ： " + message);
+                    })
+                });
+            }());
+
+            function send_data() {
+                // 发送数据给c++
+                _bdlbscWebDataComponent.on_send_data("{'action':'js send to cpp'}")
+            }
+
+    </script>
 </head>
-<body
->
-<!--<script type="text/javascript" src="qrc:///qtwebchannel/qwebchannel.js">-->
-<!--    console.log("qrc:///qtwebchannel/qwebchannel.js")-->
-<!--</script>-->
-<!-- or -->
-<script type="text/javascript" src="qwebchannel.js"></script>
-
-
-<script type="text/javascript">
-    var _bdlbscWebDataComponent
-
-    window.onload = function () {
-        new QWebChannel(qt.webChannelTransport, function (channel) {
-            _bdlbscWebDataComponent = channel.objects.bdlbscWebDataComponent;
-            app_access_token = _bdlbscWebDataComponent.app_access_token;
-            document.cookie = "app_access_token=" + app_access_token;
-            // 获取 app_access_token
-            console.log("app_access_token : " + _bdlbscWebDataComponent.app_access_token)
-            // 获取 user_access_token
-            console.log("user_access_token : " + _bdlbscWebDataComponent.user_access_token)
-            // 获取用户id
-            console.log("user_id : " + _bdlbscWebDataComponent.user_id)
-
-            _bdlbscWebDataComponent.data_change.connect(function (message) {
-                // 接收 c++ 发送过来的数据
-                console.log("js receive ： "+message);
-            })
-        });
-    }
-
-    function send_data() {
-        // 发送数据给c++
-        _bdlbscWebDataComponent.on_send_data("{'action':'js send to cpp'}")
-    }
-</script>
+<body>
 
 <input type="button" value="发送" onclick="send_data()">
 
